@@ -6,7 +6,7 @@ global.__basedir = __dirname;
 
 app.use(cors());
 
-const initRoutes = require("./src/routes");
+const initRoutes = require(".");
 
 app.use(express.urlencoded({ extended: true }));
 initRoutes(app);
