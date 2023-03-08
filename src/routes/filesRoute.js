@@ -5,7 +5,7 @@ const {
     getListFiles,
     download,
     remove
-} = require("../controller/file.controller");
+} = require("../controllers/fileController");
 
 router.post("/upload", uploadFile);
 router.get("/", getListFiles);

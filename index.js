@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 connectDB();
 
 // app.use('/api/user', userRouter);
-// app.use('/api/email', emailRouter);
+app.use('/api/email', emailRouter);
 app.use('/api/files',filesRouter);
 
 const PORT = process.env.PORT || 5000;
