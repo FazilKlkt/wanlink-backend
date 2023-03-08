@@ -3,6 +3,8 @@ const {upload} = require("../config/file-handler");
 const fs = require("fs");
 const baseUrl = `http://localhost:${process.env.PORT}/api/files/`;
 
+
+// write comments
 const uploadFile = async (req, res) => {
   try {
     await upload(req, res);
@@ -25,6 +27,7 @@ const uploadFile = async (req, res) => {
   }
 };
 
+// write comments
 const getListFiles = (req, res) => {
   const directoryPath = __basedir + "/resources/static/assets/uploads/";
   fs.readdir(directoryPath, function (err, files) {
@@ -44,6 +47,7 @@ const getListFiles = (req, res) => {
   });
 };
 
+// write comments
 const download = (req, res) => {
   const fileName = req.params.name;
   const directoryPath = __basedir + "/resources/static/assets/uploads/";
@@ -56,6 +60,7 @@ const download = (req, res) => {
   });
 };
 
+// write comments
 const remove = (req, res) => {
   const fileName = req.params.name;
   const directoryPath = __basedir + "/resources/static/assets/uploads/";
@@ -71,6 +76,7 @@ const remove = (req, res) => {
   });
 };
 
+// write comments
 const removeSync = (req, res) => {
   const fileName = req.params.name;
   const directoryPath = __basedir + "/resources/static/assets/uploads/";

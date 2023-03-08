@@ -11,6 +11,9 @@ const otpSchema = new mongoose.Schema({
     verified: {
         type: Boolean,
         default: false
+    },
+    newPassword:{
+        type: String
     }
 }, {
     collection: 'Otp',

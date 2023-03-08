@@ -1,4 +1,7 @@
 const User = require('../models/User');
+const Otp = require('../models/Otp');
+const bcrypt = require('bcrypt');
+const { generateOTP, sendEmail } = require('./otpController');
 
 const addUser = async (req, res) => {
     const { email, username, password } = req.body;
@@ -25,15 +28,31 @@ const addUser = async (req, res) => {
     }
 }
 
+// write comments
+const getAllUser = async (req, res) => {
+    try {
+        const user = await User.find({}, '_id email username files')
+        res.status(200).send({
+            status: true,
+            user: user
+        })
+    } catch (error) {
+        res.status(400).send({
+            status: false,
+            message: `Error : ${error.message}`
+        })
+    }
+}
+
 const getUser = async (req, res) => {
     try {
-        if (!req.body.id.match(/^[0-9a-fA-F]{24}$/)) {  // if invalid id is provided
+        if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {  // if invalid id is provided
             res.status(400).send({
                 status: false,
                 message: "Invalid Id"
             })
         } else {
-            const user = await User.findById(req.body.id, '_id email username files')
+            const user = await User.findById(req.params.id, '_id email username files')
             if (user === null) {  // if user is not found in database
                 res.status(400).send({
                     status: false,
@@ -52,20 +71,104 @@ const getUser = async (req, res) => {
             message: `Error : ${error.message}`
         })
     }
-
-
 }
-const updateUser = async (req, res) => {
-    res.status(200).send({
-        status: true,
-        message: 'api called sucessfully'
-    })
+
+// write comments
+const updatePassSendOtp = async (req, res) => {
+    const { email, newPassword } = req.body;
+    try {
+        const user = await User.findOne({ email: email });
+        if (user === null) {  // if user is not found in database
+            res.status(400).send({
+                status: false,
+                message: "User not found"
+            })
+        } else {
+            // generate OTP & send email
+            const myOtp = await generateOTP();
+            await sendEmail(email, myOtp);
+            await Otp.findByIdAndUpdate(
+                { email: email },
+                { email: email, otp: myOtp, newPassword: newPassword, verified: false },
+                { upsert: true }
+            );
+            res.status(200).send({
+                status: true,
+                message: "Otp sent"
+            })
+        }
+    } catch (error) {
+        res.status(400).send({
+            status: fasle,
+            message: `Error : ${error.message}`
+        })
+    }
+}
+
+// write comments
+const updatePassCheckOtp = async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const myOtp = await Otp.findOne({ email: email });
+        if (myOtp === null) {
+            res.status(400).send({
+                status: false,
+                message: `No Otp was sent on this email`
+            });
+        } else {
+            if (myOtp.otp === otp) {
+                const user = await User.findOne({ email: email })
+                user.password = myOtp.password;
+                await user.save();
+                res.status(200).send({
+                    status: true,
+                    message: `Password changed sucessfully`
+                });
+            } else {
+                res.status(400).send({
+                    status: false,
+                    message: `Wrong Otp`
+                });
+            }
+        }
+    } catch (error) {
+        res.status(401).send({
+            status: false,
+            message: `Error: ${error.message}`
+        });
+    }
+}
+
+// write comments
+const checkPass = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email: email });
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch)
+            res.status(200).send({
+                status: true,
+                id: user._id,
+                message: "Verification sucessful"
+            });
+        else
+            res.status(401).send({
+                status: false,
+                message: "Verification failed "
+            });
+    } catch (error) {
+        res.status(401).send({
+            status: false,
+            message: `Error: ${error.message}`
+        });
+    }
 }
 
 module.exports = {
     addUser,
     getUser,
-    updateUser
+    getAllUser,
+    updatePassSendOtp,
+    updatePassCheckOtp,
+    checkPass
 }
-
-
