@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 connectDB();
 
-// app.use('/api/user', userRouter);
+app.use('/api/user', userRouter);
 app.use('/api/email', emailRouter);
 app.use('/api/files',filesRouter);
 

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
     email: {
@@ -13,10 +14,8 @@ const UserSchema = new mongoose.Schema({
     },
     files: [
         {
-            file: {
                 type: mongoose.Schema.ObjectId,
-                ref: 'File'
-            }
+                ref: 'File'   
         }
     ]
 }, {
@@ -27,7 +26,7 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.pre('save', async function (next) {
     if (this.isModified('password')) {
-      this.pass = (await bcrypt.hash(this.pass, 10)).toString();
+      this.password = (await bcrypt.hash(this.password, 10)).toString();
     }
     next();
 });
